@@ -328,6 +328,7 @@ server <- function(input, output, session) {
           tags$a(
             href = talk$url[[1]],
             class = "btn btn-success",
+            target = "_blank",
             "Go To Talk Page"
           ),
           modalButton("OK")
