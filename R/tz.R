@@ -6,7 +6,7 @@ available_timezones <- function() {
     if (grepl("/", tz, fixed = TRUE)) {
       tz_split <- strsplit(tz, "/", fixed = TRUE)[[1]]
       tz_group <- tz_split[1]
-      tz_name <- tz_split[2]
+      tz_name <- paste(tz_split[-1], collapse = "/")
       names(tz) <- gsub("_", " ", tz_name)
       tz_list[[tz_group]] <- c(tz_list[[tz_group]], tz)
     } else {
