@@ -9,7 +9,7 @@ A little Shiny app that makes it easy to build your schedule for [rstudio::globa
 Run it locally:
 
 ```r
-shiny::runGithub("rstudio-global-calendar", "gadenbuie")
+shiny::runGitHub("rstudio-global-2021-calendar", "gadenbuie", ref = "main")
 ```
 
 ## Uses
