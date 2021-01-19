@@ -150,9 +150,13 @@ server <- function(input, output, session) {
 
   observeEvent(selected_by_user_current_view(), {
     current <- selected_talks$stack()
+    on.exit(ignore_schedule_change(FALSE))
+    if (!is.null(current) && ignore_schedule_change()) {
+      return()
+    }
     in_view <- intersect(current, schedule_view()$id)
 
-    if (is.null(selected_by_user_current_view())) {
+    if (is.null(selected_by_user_current_view()) && length(in_view)) {
       selected_talks$remove(in_view)
       return()
     }
@@ -209,12 +213,14 @@ server <- function(input, output, session) {
     )
   })
 
-  trigger_schedule_redraw <- reactiveVal(NULL)
+  ignore_schedule_change <- reactiveVal(FALSE)
 
   output$schedule <- reactable::renderReactable({
+    ignore_schedule_change(TRUE)
     reactable(
       schedule_view(),
       selection = "multiple",
+      defaultSelected = which(schedule_view()$id %in% isolate(selected_talks$stack())),
       columns = list(
         talk_id = colDef(show = FALSE),
         id = colDef(show = FALSE),
