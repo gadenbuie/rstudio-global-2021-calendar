@@ -151,7 +151,7 @@ server <- function(input, output, session) {
   observeEvent(selected_by_user_current_view(), {
     current <- selected_talks$stack()
     on.exit(ignore_schedule_change(FALSE))
-    if (!is.null(current) && ignore_schedule_change()) {
+    if (!is.null(current) && is.null(selected_by_user_current_view()) && ignore_schedule_change()) {
       return()
     }
     in_view <- intersect(current, schedule_view()$id)
