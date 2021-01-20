@@ -183,8 +183,12 @@ server <- function(input, output, session) {
     tagList(
       downloadButton(
         "download_calendar",
-        class = "d-block mb-3",
-        glue("Download Calendar ({n} talks)", n = length(selected_talks$stack()))
+        class = "d-block mb-3 btn-primary",
+        glue(
+          "Download Calendar ({n} talk{s})",
+          n = length(selected_talks$stack()),
+          s = if (length(selected_talks$stack()) == 1) "" else "s"
+        )
       ),
       p(class = "text-right", actionLink("reset", "Reset Selection"))
     )
