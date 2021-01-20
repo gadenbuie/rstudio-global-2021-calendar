@@ -131,15 +131,60 @@ ui <- navbarPage(
       ),
       div(
         class = "d-flex flex-wrap align-items-stretch justify-content-between",
-        card("shiny", rstudio_hex("shiny"), "https://shiny.rstudio.com", "Shiny is an R package that makes it easy to build interactive web apps straight from R."),
-        card("renv", rstudio_hex("renv"), "https://rstudio.github.io/renv", "The renv package helps you create reproducible environments for your R projects. Use renv to make your R projects more: isolated, portable, and reproducible."),
-        card("bslib", list(src = "https://camo.githubusercontent.com/3a4d3fbd6458e2fe5c0f5fb2df62878b9f74c2531c340a37599d875ae43a7d0e/68747470733a2f2f692e696d6775722e636f6d2f4b4c4b793173302e676966", alt = "Animated gif of bslib features"), "https://rstudio.github.io/bslib/", "Tools for creating custom Bootstrap themes, making it easier to style Shiny apps & R Markdown documents directly from R without writing unruly CSS and HTML."),
-        card("R6", rstudio_hex("R6"), "https://r6.r-lib.org/", "Encapsulated object-oriented programming for R."),
-        card("glue", rstudio_hex("glue"), "https://glue.tidyverse.org", "Glue strings to data in R. Small, fast, dependency free interpreted string literals."),
-        card("lubridate", rstudio_hex("lubridate"), "https://lubridate.tidyverse.org", "Make working with dates in R just that little bit easier."),
-        card("calendar", NULL, "https://github.com/ATFutures/calendar", "Create, read, write, and work with iCalander (.ics, .ical or similar) files in R."),
-        card("reactable", NULL, "https://glin.github.io/reactable/index.html", "Interactive data tables for R, based on the React Table library and made with reactR."),
-        card("prettyunits", NULL, "https://github.com/r-lib/prettyunits", "Pretty, human readable formatting of quantities."),
+        card(
+          "shiny",
+          rstudio_hex("shiny"),
+          "https://shiny.rstudio.com",
+          "Shiny is an R package that makes it easy to build interactive web apps straight from R."
+        ),
+        card(
+          "renv",
+          rstudio_hex("renv"),
+          "https://rstudio.github.io/renv",
+          "The renv package helps you create reproducible environments for your R projects. Use renv to make your R projects more: isolated, portable, and reproducible."
+        ),
+        card(
+          "bslib",
+          list(src = "https://camo.githubusercontent.com/3a4d3fbd6458e2fe5c0f5fb2df62878b9f74c2531c340a37599d875ae43a7d0e/68747470733a2f2f692e696d6775722e636f6d2f4b4c4b793173302e676966", alt = "Animated gif of bslib features"),
+          "https://rstudio.github.io/bslib/",
+          "Tools for creating custom Bootstrap themes, making it easier to style Shiny apps & R Markdown documents directly from R without writing unruly CSS and HTML."
+        ),
+        card(
+          "R6",
+          rstudio_hex("R6"),
+          "https://r6.r-lib.org/",
+          "Encapsulated object-oriented programming for R."
+        ),
+        card(
+          "glue",
+          rstudio_hex("glue"),
+          "https://glue.tidyverse.org",
+          "Glue strings to data in R. Small, fast, dependency free interpreted string literals."
+        ),
+        card(
+          "lubridate",
+          rstudio_hex("lubridate"),
+          "https://lubridate.tidyverse.org",
+          "Make working with dates in R just that little bit easier."
+        ),
+        card(
+          "calendar",
+          NULL,
+          "https://github.com/ATFutures/calendar",
+          "Create, read, write, and work with iCalander (.ics, .ical or similar) files in R."
+        ),
+        card(
+          "reactable",
+          NULL,
+          "https://glin.github.io/reactable/index.html",
+          "Interactive data tables for R, based on the React Table library and made with reactR."
+        ),
+        card(
+          "prettyunits",
+          NULL,
+          "https://github.com/r-lib/prettyunits",
+          "Pretty, human readable formatting of quantities."
+        ),
       )
     )
   )
@@ -152,9 +197,13 @@ server <- function(input, output, session) {
   schedule_view <- reactive({
     if (isTruthy(input$sch_day)) {
       if (input$sch_day == "one") {
-        schedule <- schedule[schedule$time_gmt < ymd_hms("2021-01-22 04:00:00", tz = "UTC"), ]
+        schedule <- schedule[
+          schedule$time_gmt < ymd_hms("2021-01-22 04:00:00", tz = "UTC"),
+        ]
       } else if (input$sch_day == "two") {
-        schedule <- schedule[schedule$time_gmt >= ymd_hms("2021-01-22 04:00:00", tz = "UTC"), ]
+        schedule <- schedule[
+          schedule$time_gmt >= ymd_hms("2021-01-22 04:00:00", tz = "UTC"),
+        ]
       }
     }
     schedule$time <- with_tz(schedule$time_gmt, input$tz)
@@ -164,7 +213,9 @@ server <- function(input, output, session) {
       ]
     }
     if (shiny::isTruthy(input$sch_search)) {
-      schedule <- schedule[grepl(input$sch_search, tolower(paste(schedule$title_text, schedule$abstract_text))), ]
+      schedule <- schedule[
+        grepl(input$sch_search, tolower(paste(schedule$title_text, schedule$abstract_text))),
+      ]
     }
     if (isTruthy(input$sch_type)) {
       schedule <- schedule[schedule$type %in% input$sch_type, ]
@@ -176,7 +227,11 @@ server <- function(input, output, session) {
       schedule <- schedule[schedule$name %in% input$sch_presenter, ]
     }
     schedule$info <- schedule$talk_id
-    schedule <- schedule[, c("id", "info", "talk_id", "type", "title_text", "name", "time", "duration", "track", "topic", "url")]
+    common_vars <- c(
+      "id", "info", "talk_id", "type", "title_text", "name", "time",
+      "duration", "track", "topic", "url"
+    )
+    schedule <- schedule[, common_vars]
     schedule
   })
 
@@ -277,7 +332,13 @@ server <- function(input, output, session) {
         time = colDef(
           name = "Time",
           html = TRUE,
-          cell = function(value) strftime(value, '<span class="white-space:pre;">%a</span> %H:%M', tz = input$tz)
+          cell = function(value) {
+            strftime(
+              value,
+              format = '<span class="white-space:pre;">%a</span> %H:%M',
+              tz = input$tz
+            )
+          }
         ),
         duration = colDef(
           name = "Length",
@@ -353,15 +414,37 @@ server <- function(input, output, session) {
               icon("info")
             )
           },
-          style = list(position = "sticky", left = 30, background = "#fff", zIndex = 1,
-            borderRight = "2px solid #eee"),
-          headerStyle = list(position = "sticky", left = 30, background = "#fff", zIndex = 1,
-            borderRight = "2px solid #eee")
+          style = list(
+            position = "sticky",
+            left = 30,
+            background = "#fff",
+            zIndex = 1,
+            borderRight = "2px solid #eee"
+          ),
+          headerStyle = list(
+            position = "sticky",
+            left = 30,
+            background = "#fff",
+            zIndex = 1,
+            borderRight = "2px solid #eee"
+          )
         ),
         .selection = colDef(
           width = 30,
-          style = list(cursor = "pointer", position = "sticky", left = 0, background = "#fff", zIndex = 1),
-          headerStyle = list(cursor = "pointer", position = "sticky", left = 0, background = "#fff", zIndex = 1)
+          style = list(
+            cursor = "pointer",
+            position = "sticky",
+            left = 0,
+            background = "#fff",
+            zIndex = 1
+          ),
+          headerStyle = list(
+            cursor = "pointer",
+            position = "sticky",
+            left = 0,
+            background = "#fff",
+            zIndex = 1
+          )
         )
       )
     )
@@ -395,7 +478,11 @@ server <- function(input, output, session) {
             class = "row",
             div(
               class = "col-sm-3 order-1 order-sm-2",
-              tags$img(src = spkr_img, style = "max-width: 100%", class = "rounded-lg")
+              tags$img(
+                src = spkr_img,
+                style = "max-width: 100%",
+                class = "rounded-lg"
+              )
             ),
             div(
               class = "col-sm-9 order-2 order-sm-1",
