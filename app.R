@@ -27,6 +27,7 @@ year(schedule$time_gmt) <- 2021
 ui <- navbarPage(
   'rstudio::global("schedule")',
   theme = theme,
+  collapsible = TRUE,
   tabPanel(
     title = "Schedule",
     id = "schedule",
