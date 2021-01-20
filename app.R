@@ -146,7 +146,7 @@ server <- function(input, output, session) {
       schedule <- schedule[schedule$name %in% input$sch_presenter, ]
     }
     schedule$info <- schedule$talk_id
-    schedule <- schedule[, c("id", "info", "talk_id", "title_text", "name", "time", "duration", "type", "track", "topic")]
+    schedule <- schedule[, c("id", "info", "talk_id", "type", "title_text", "name", "time", "duration", "track", "topic")]
     schedule
   })
 
@@ -243,6 +243,7 @@ server <- function(input, output, session) {
         type = colDef(
           name = "Type",
           html = TRUE,
+          align = "center",
           cell = function(value) {
             value <- paste(value)
             glue(
@@ -262,6 +263,7 @@ server <- function(input, output, session) {
           name = "Track",
           html = TRUE,
           minWidth = 80,
+          align = "center",
           cell = function(value) {
             if (!is.na(value)) {
               glue(
@@ -277,7 +279,7 @@ server <- function(input, output, session) {
             }
           }
         ),
-        topic = colDef(name = "Topic", minWidth = 150),
+        topic = colDef(name = "Topic", minWidth = 100, align = "center"),
         name = colDef(name = "Presenter", minWidth = 200),
         title_text = colDef(name = "Title", minWidth = 300),
         info = colDef(
