@@ -234,7 +234,7 @@ server <- function(input, output, session) {
         desc <- paste0("Presenter: ", talks$name[[idx]], "\n\n", talks$abstract_text[[idx]])
         desc <- gsub("\n", "\\n", desc, fixed = TRUE)
         desc <- strwrap(desc, 75)
-        desc <- paste(desc, collapse = "\n ")
+        desc <- paste(desc, collapse = " \n ")
         desc <- gsub(",", "\\,", desc)
         ev <- calendar::ic_event(
           start_time = talks$start_time[[idx]],
