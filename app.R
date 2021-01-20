@@ -23,6 +23,7 @@ theme <- bs_theme(
 schedule <- readr::read_csv("data/schedule.csv")
 schedule$id <- seq_len(nrow(schedule))
 year(schedule$time_gmt) <- 2021
+schedule$name <- gsub("\n", ", ", schedule$name)
 
 ui <- navbarPage(
   'rstudio::global("schedule")',
@@ -312,11 +313,39 @@ server <- function(input, output, session) {
     talk <- schedule[!is.na(schedule$talk_id) & schedule$talk_id == as.numeric(input$talk_more_info), ]
     req(nrow(talk))
 
-    speaker_img_slug <- tolower(gsub("[ '-]", "", talk$name[[1]]))
-    speaker_img <- if (file.exists(file.path("www", "speakers", paste0(speaker_img_slug, ".png")))) {
-      file.path("speakers", paste0(speaker_img_slug, ".png"))
-    } else if (file.exists(file.path("www", "speakers", paste0(speaker_img_slug, ".jpg")))) {
-      file.path("speakers", paste0(speaker_img_slug, ".jpg"))
+    speaker_names <- strsplit(talk$name[[1]], ", ")[[1]]
+    speaker_bios <- strsplit(talk$bio_html[[1]], "\n</p>\n<p>")[[1]]
+    if (length(speaker_bios) == 2) {
+      speaker_bios[1] <- paste0(speaker_bios[1], "</p>")
+      speaker_bios[2] <- paste0("<p>", speaker_bios[2])
+    }
+
+
+    html_speaker_bio <- function(idx) {
+      spkr_name <- speaker_names[idx]
+      spkr_bio <- speaker_bios[idx]
+      spkr_img <- tolower(gsub("[ '-]", "", spkr_name))
+      spkr_img <- if (file.exists(file.path("www", "speakers", paste0(spkr_img, ".png")))) {
+        file.path("speakers", paste0(spkr_img, ".png"))
+      } else if (file.exists(file.path("www", "speakers", paste0(spkr_img, ".jpg")))) {
+        file.path("speakers", paste0(spkr_img, ".jpg"))
+      }
+      tagList(
+        h2(spkr_name),
+        if (!is.null(spkr_img)) {
+          div(
+            class = "row",
+            div(
+              class = "col-sm-3 order-1 order-sm-2",
+              tags$img(src = spkr_img, style = "max-width: 100%", class = "rounded-lg")
+            ),
+            div(
+              class = "col-sm-9 order-2 order-sm-1",
+              HTML(spkr_bio)
+            )
+          )
+        } else HTML(spkr_bio)
+      )
     }
 
     showModal(
@@ -326,20 +355,7 @@ server <- function(input, output, session) {
         title = talk$title_text[[1]],
         h2("Abstract"),
         HTML(talk$abstract_html[[1]]),
-        h2(talk$name[[1]]),
-        if (!is.null(speaker_img)) {
-          div(
-            class = "row",
-            div(
-              class = "col-sm-3 order-1 order-sm-2",
-              tags$img(src = speaker_img, style = "max-width: 100%", class = "rounded-lg")
-            ),
-            div(
-              class = "col-sm-9 order-2 order-sm-1",
-              HTML(talk$bio_html[[1]])
-            )
-          )
-        } else HTML(talk$bio_html[[1]]),
+        lapply(seq_along(speaker_names), html_speaker_bio),
         footer = list(
           tags$a(
             href = talk$url[[1]],
