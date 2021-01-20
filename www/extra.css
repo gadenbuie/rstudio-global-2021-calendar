@@ -1,0 +1,12 @@
+#schedule .rt-tr {
+  vertical-align: center;
+}
+
+.cell-info-button {
+  padding: 0;
+}
+
+.cell-info-button > button {
+  height: 100%;
+  width: 100%;
+}

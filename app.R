@@ -59,18 +59,20 @@ ui <- navbarPage(
         div(
           class = "col-lg-9 order-2 order-lg-1",
           reactable::reactableOutput("schedule"),
-          singleton(
-            tags$script(HTML(
-              "$(document).on('click', '.btn-talk-more-info, .btn-talk-more-info i', function(ev) {
-                Shiny.setInputValue('talk_more_info', ev.target.closest('.btn').dataset.value, {priority: 'event'})
-              })
-
-              document.querySelector('.navbar-brand').classList.add('text-monospace')
-
-              $(document).on('shiny:sessioninitialized', function() {
-                Shiny.setInputValue('browser_tz', Intl.DateTimeFormat().resolvedOptions().timeZone)
-              })
-              "))
+          helpText(
+            class = "mt-3",
+            tags$a(
+              href = "https://global.rstudio.com",
+              code("rstudio::global")
+            ),
+            "will be held Thursday 2021-01-21 and Friday 2021-01-22."
+          ),
+          htmltools::htmlDependency(
+            name = "rstudio-global-calendar",
+            version = "0.0.1",
+            src = "www",
+            script = "extra.js",
+            stylesheet = "extra.css"
           )
         )
       )
@@ -143,7 +145,7 @@ server <- function(input, output, session) {
       schedule <- schedule[schedule$name %in% input$sch_presenter, ]
     }
     schedule$info <- schedule$talk_id
-    schedule <- schedule[, c("id", "talk_id", "time", "duration", "type", "track", "info", "title_text", "name", "topic")]
+    schedule <- schedule[, c("id", "info", "talk_id", "title_text", "name", "time", "duration", "type", "track", "topic")]
     schedule
   })
 
@@ -222,13 +224,15 @@ server <- function(input, output, session) {
       schedule_view(),
       selection = "multiple",
       defaultSelected = which(schedule_view()$id %in% isolate(selected_talks$stack())),
+      highlight = TRUE,
+      borderless = TRUE,
       columns = list(
         talk_id = colDef(show = FALSE),
         id = colDef(show = FALSE),
         time = colDef(
           name = "Time",
           html = TRUE,
-          cell = function(value) strftime(value, '<span class="white-space:pre;">%a %b %d</span> %H:%M', tz = input$tz)
+          cell = function(value) strftime(value, '<span class="white-space:pre;">%a</span> %H:%M', tz = input$tz)
         ),
         duration = colDef(
           name = "Length",
@@ -278,7 +282,9 @@ server <- function(input, output, session) {
         info = colDef(
           name = "",
           html = TRUE,
-          minWidth = 80,
+          minWidth = 60,
+          sortable = FALSE,
+          class = "cell-info-button",
           cell = function(value) {
             if (!isTruthy(value)) return()
             tags$button(
@@ -287,7 +293,16 @@ server <- function(input, output, session) {
               title = "More info...",
               icon("info")
             )
-          }
+          },
+          style = list(position = "sticky", left = 30, background = "#fff", zIndex = 1,
+            borderRight = "2px solid #eee"),
+          headerStyle = list(position = "sticky", left = 30, background = "#fff", zIndex = 1,
+            borderRight = "2px solid #eee")
+        ),
+        .selection = colDef(
+          width = 30,
+          style = list(cursor = "pointer", position = "sticky", left = 0, background = "#fff", zIndex = 1),
+          headerStyle = list(cursor = "pointer", position = "sticky", left = 0, background = "#fff", zIndex = 1)
         )
       )
     )
@@ -297,7 +312,7 @@ server <- function(input, output, session) {
     talk <- schedule[!is.na(schedule$talk_id) & schedule$talk_id == as.numeric(input$talk_more_info), ]
     req(nrow(talk))
 
-    speaker_img_slug <- tolower(gsub(" ", "", talk$name[[1]]))
+    speaker_img_slug <- tolower(gsub("[ '-]", "", talk$name[[1]]))
     speaker_img <- if (file.exists(file.path("www", "speakers", paste0(speaker_img_slug, ".png")))) {
       file.path("speakers", paste0(speaker_img_slug, ".png"))
     } else if (file.exists(file.path("www", "speakers", paste0(speaker_img_slug, ".jpg")))) {
