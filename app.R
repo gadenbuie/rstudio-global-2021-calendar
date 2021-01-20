@@ -6,6 +6,7 @@ library(reactable)
 library(glue)
 source("R/stack.R")
 source("R/tz.R")
+source("R/cards.R")
 
 Sys.setenv(TZ = "UTC")
 
@@ -110,6 +111,27 @@ ui <- navbarPage(
             "Official Schedule"
           )
         )
+      ),
+      tags$hr(class = "my-4"),
+      h2("About this app", class = "text-monospace"),
+      p(
+        HTML("This app was built with &#x2665;&#xFE0F; and &#x2615; by"),
+        tags$a(href = "https://www.garrickadenbuie.com", "Garrick Aden-Buie", .noWS = "after"),
+        ", using the packages listed below. Check out",
+        tags$a(href = "https://github.com/gadenbuie/rstudio-global-2021-calendar", "the full source code"),
+        "on Github."
+      ),
+      div(
+        class = "d-flex flex-wrap align-items-stretch justify-content-between",
+        card("shiny", rstudio_hex("shiny"), "https://shiny.rstudio.com", "Shiny is an R package that makes it easy to build interactive web apps straight from R."),
+        card("renv", rstudio_hex("renv"), "https://rstudio.github.io/renv", "The renv package helps you create reproducible environments for your R projects. Use renv to make your R projects more: isolated, portable, and reproducible."),
+        card("bslib", list(src = "https://camo.githubusercontent.com/3a4d3fbd6458e2fe5c0f5fb2df62878b9f74c2531c340a37599d875ae43a7d0e/68747470733a2f2f692e696d6775722e636f6d2f4b4c4b793173302e676966", alt = "Animated gif of bslib features"), "https://rstudio.github.io/bslib/", "Tools for creating custom Bootstrap themes, making it easier to style Shiny apps & R Markdown documents directly from R without writing unruly CSS and HTML."),
+        card("R6", rstudio_hex("R6"), "https://r6.r-lib.org/", "Encapsulated object-oriented programming for R."),
+        card("glue", rstudio_hex("glue"), "https://glue.tidyverse.org", "Glue strings to data in R. Small, fast, dependency free interpreted string literals."),
+        card("lubridate", rstudio_hex("lubridate"), "https://lubridate.tidyverse.org", "Make working with dates in R just that little bit easier."),
+        card("calendar", NULL, "https://github.com/ATFutures/calendar", "Create, read, write, and work with iCalander (.ics, .ical or similar) files in R."),
+        card("reactable", NULL, "https://glin.github.io/reactable/index.html", "Interactive data tables for R, based on the React Table library and made with reactR."),
+        card("prettyunits", NULL, "https://github.com/r-lib/prettyunits", "Pretty, human readable formatting of quantities."),
       )
     )
   )
