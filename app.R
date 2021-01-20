@@ -176,7 +176,7 @@ server <- function(input, output, session) {
       schedule <- schedule[schedule$name %in% input$sch_presenter, ]
     }
     schedule$info <- schedule$talk_id
-    schedule <- schedule[, c("id", "info", "talk_id", "type", "title_text", "name", "time", "duration", "track", "topic")]
+    schedule <- schedule[, c("id", "info", "talk_id", "type", "title_text", "name", "time", "duration", "track", "topic", "url")]
     schedule
   })
 
@@ -273,6 +273,7 @@ server <- function(input, output, session) {
       columns = list(
         talk_id = colDef(show = FALSE),
         id = colDef(show = FALSE),
+        url = colDef(show = FALSE),
         time = colDef(
           name = "Time",
           html = TRUE,
@@ -324,7 +325,19 @@ server <- function(input, output, session) {
         ),
         topic = colDef(name = "Topic", minWidth = 100, align = "center"),
         name = colDef(name = "Presenter", minWidth = 200),
-        title_text = colDef(name = "Title", minWidth = 300),
+        title_text = colDef(
+          name = "Title",
+          minWidth = 300,
+          html = TRUE,
+          cell = JS("
+            function(cellInfo) {
+              var url = cellInfo.row['url']
+              return url ?
+                '<a href=\"' + url + '\" target=\"_blank\" title=\"Go to Official Talk Page\">' + cellInfo.value + '<a>' :
+                cellInfo.value
+            }
+          ")
+        ),
         info = colDef(
           name = "",
           html = TRUE,
