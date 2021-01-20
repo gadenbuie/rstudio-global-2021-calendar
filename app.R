@@ -231,12 +231,21 @@ server <- function(input, output, session) {
       talks$start_time <- with_tz(talks$time_gmt, tzone = input$tz)
       talks$end_time <- talks$start_time + seconds(talks$duration)
       talk_events <- lapply(seq_len(nrow(talks)), function(idx) {
+        desc <- paste0("Presenter: ", talks$name[[idx]], "\n\n", talks$abstract_text[[idx]])
+        desc <- gsub("\n", "\\n", desc, fixed = TRUE)
+        desc <- strwrap(desc, 75)
+        desc <- paste(desc, collapse = "\n ")
+        desc <- gsub(",", "\\,", desc)
         ev <- calendar::ic_event(
           start_time = talks$start_time[[idx]],
           end_time = talks$end_time[[idx]],
-          summary = talks$title_text[[idx]]
+          summary = talks$title_text[[idx]],
+          more_properties = TRUE,
+          event_properties = c(
+            DESCRIPTION = desc,
+            URL = talks$url[[idx]]
+          )
         )
-        ev$DESCRIPTION <- paste0(talks$abstract_text[[idx]], "\n\nPresenter: ", talks$name[[idx]], "\n\nLink: ", talks$url[[idx]])
         ev
       })
       calendar::ic_write(do.call(rbind, talk_events), file)
