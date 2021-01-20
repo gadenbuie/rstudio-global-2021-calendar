@@ -33,6 +33,14 @@ ui <- navbarPage(
   tabPanel(
     title = "Schedule",
     id = "schedule",
+    # skip link
+    a(
+      "If you're using a screen reader, you may find the official ",
+      "RStudio Global conference website is better suited. Do you want to go there now?",
+      class = "screenreader-text",
+      `tab-index` = 1,
+      href = "https://global.rstudio.com/student/all_events"
+    ),
     div(
       class = "container-fluid",
       style = "max-width: 1600px",

@@ -10,3 +10,20 @@
 .rt-select {
   height: 100%;
 }
+
+.screenreader-text {
+  position: absolute;
+  left: -999px;
+  width:1px;
+  height: 1px;
+  top: auto;
+}
+
+.screenreader-text:focus {
+  color: currentColor;
+  display: inline-block;
+  height: auto;
+  width: auto;
+  position: static;
+  margin: auto;
+}
